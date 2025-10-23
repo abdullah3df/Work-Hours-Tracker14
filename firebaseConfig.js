@@ -10,11 +10,14 @@
 // 4. Under "Firebase SDK snippet", select "Config", copy the properties,
 //    but keep the apiKey line as is.
 
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 export const firebaseConfig = {
-  apiKey: process.env.API_KEY, // API Key is read from environment variables
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCLb2KYP5yITJQS_Seu_zmzVAhqk3UifjM",
+  authDomain: "saaati-login-721ea.firebaseapp.com",
+  projectId: "saaati-login-721ea",
+  storageBucket: "saaati-login-721ea.firebasestorage.app",
+  messagingSenderId: "639481472565",
+  appId: "1:639481472565:web:b2e51db6cc4b2471a4337c",
+  measurementId: "G-Q9CZC51B7L"
 };

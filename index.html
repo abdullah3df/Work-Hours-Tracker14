@@ -1,96 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sa'ati - Work Hours Tracker</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* نفس التنسيق السابق تمامًا */
-    :root {
-      --bg-color-light: #f0f4f8;
-      --bg-color-dark: #0f172a;
-      --glass-bg-light: #ffffff;
-      --glass-bg-dark: #1e293b;
-      --glass-border-light: #e2e8f0;
-      --glass-border-dark: #334155;
-      --shadow-color-light: rgba(99, 102, 241, 0.15);
-      --shadow-color-dark: rgba(0, 0, 0, 0.3);
-    }
-    body { 
-      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-      color: #1f2937;
-      background-color: var(--bg-color-light);
-      overflow: hidden;
-    }
-    html.dark body { color: #e5e7eb; background-color: var(--bg-color-dark); }
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      z-index: -1;
-      background: linear-gradient(45deg, #818cf8, #a78bfa, #f472b6, #60a5fa, #34d399);
-      background-size: 400% 400%;
-      animation: gradient-animation 25s ease infinite;
-      opacity: 0.15;
-    }
-    @keyframes gradient-animation {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sa'ati - Work Hours Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color-light: #f0f4f8;
+        --bg-color-dark: #0f172a;
+        --glass-bg-light: #ffffff;
+        --glass-bg-dark: #1e293b; /* slate-800 */
+        --glass-border-light: #e2e8f0; /* slate-200 */
+        --glass-border-dark: #334155; /* slate-700 */
+        --shadow-color-light: rgba(99, 102, 241, 0.15);
+        --shadow-color-dark: rgba(0, 0, 0, 0.3);
+      }
+
+      body { 
+        font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        color: #1f2937;
+        background-color: var(--bg-color-light);
+        overflow: hidden; /* Hide scrollbars from the gradient body */
+      }
+      html.dark body {
+        color: #e5e7eb;
+        background-color: var(--bg-color-dark);
+      }
+      /* Animated Gradient Background */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: -1;
+        background: linear-gradient(45deg, #818cf8, #a78bfa, #f472b6, #60a5fa, #34d399);
+        background-size: 400% 400%;
+        animation: gradient-animation 25s ease infinite;
+        opacity: 0.15;
+      }
+      html.dark body::before {
+        opacity: 0.2;
+      }
+
+      html[lang="ar"] body, html[dir="rtl"] body { 
+        font-family: 'Cairo', sans-serif; 
+      }
+      .report-table {
+        font-family: 'Inter', sans-serif;
+      }
+      * {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      @keyframes gradient-animation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 10px 0px rgba(22, 163, 74, 0.4), 0 0 20px 0px rgba(22, 163, 74, 0.2); }
+        50% { box-shadow: 0 0 20px 10px rgba(22, 163, 74, 0), 0 0 40px 10px rgba(22, 163, 74, 0); }
+      }
+      .pulse-glow-start {
+        animation: pulse-glow 2.5s infinite;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      .smooth-scroll {
+        overflow-y: auto; /* Enable scrolling only on this container */
+        height: 100vh;
+        scroll-behavior: smooth;
+      }
+      /* Scrollbar styling */
+      .smooth-scroll::-webkit-scrollbar {
+        width: 8px;
+      }
+      .smooth-scroll::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .smooth-scroll::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+      }
+       html.dark .smooth-scroll::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      .tour-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 9998;
+        transition: opacity 0.3s ease-in-out;
+      }
+      .tour-highlight {
+        position: fixed;
+        border-radius: 0.5rem;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        transition: all 0.4s ease-in-out;
+      }
+      .tour-tooltip {
+        position: fixed;
+        background-color: var(--glass-bg-light);
+        color: #333;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        max-width: 300px;
+        z-index: 10000;
+        transition: all 0.4s ease-in-out;
+        border: 1px solid var(--glass-border-light);
+      }
+      html.dark .tour-tooltip {
+        background-color: var(--glass-bg-dark);
+        color: #f3f4f6; /* gray-100 */
+        border-color: var(--glass-border-dark);
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              cairo: ['Cairo', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "uuid": "https://aistudiocdn.com/uuid@^13.0.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^0.18.0",
+    "firebase/": "https://aistudiocdn.com/firebase@^12.4.0/"
+  }
+}
+</script>
 </head>
-
 <body>
-  <div id="root"></div>
+    <div id="root"></div>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script type="module">
+      import { firebaseConfig } from './firebaseConfig.js';
+      
+      // Check if the config has been filled out and expose it globally for the React app
+      window.isFirebaseConfigured = firebaseConfig.projectId && !firebaseConfig.projectId.startsWith('YOUR_');
 
-  <!-- ✅ Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
-  <!-- ✅ إعداد Firebase -->
-  <script type="module">
-    import { firebaseConfig } from "./src/firebaseConfig.js";
-
-    // ✅ تهيئة Firebase
-    if (firebase.apps.length === 0) {
-      firebase.initializeApp(firebaseConfig);
-    }
-
-    const auth = firebase.auth();
-    const provider = new firebase.auth.GoogleAuthProvider();
-
-    // ✅ زرّ مؤقت لتجربة تسجيل الدخول
-    const loginButton = document.createElement("button");
-    loginButton.textContent = "تسجيل الدخول بحساب Google";
-    loginButton.style = "position:fixed;bottom:20px;right:20px;padding:10px 15px;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;z-index:9999";
-    document.body.appendChild(loginButton);
-
-    loginButton.onclick = async () => {
+      // Initialize Firebase
       try {
-        await auth.signInWithPopup(provider);
-        alert("تم تسجيل الدخول بنجاح ✅");
-      } catch (err) {
-        console.error("خطأ في تسجيل الدخول:", err);
-        alert("فشل تسجيل الدخول، تحقق من إعدادات Firebase");
+        // Check if the API key is present, config is valid, and Firebase is not already initialized.
+        // The API key is injected from environment variables.
+        if (window.isFirebaseConfigured && firebaseConfig.apiKey && firebase.apps.length === 0) {
+          firebase.initializeApp(firebaseConfig);
+        } else if (!firebaseConfig.apiKey) {
+          console.warn("Firebase API Key is missing. Please ensure it is set in your environment variables. The app will continue, but authentication will fail.");
+        } else if (!window.isFirebaseConfigured) {
+          console.warn("Firebase is not configured. Please update firebaseConfig.js. The app will run in a limited guest mode.");
+        }
+      } catch (e) {
+        console.error("Firebase initialization error. Please check your Firebase configuration and ensure the API key is valid.", e);
       }
-    };
-
-    // ✅ متابعة حالة المستخدم
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        console.log("تم تسجيل الدخول:", user.email);
-      } else {
-        console.log("لا يوجد مستخدم مسجّل الدخول حالياً");
-      }
-    });
-  </script>
-
-  <!-- ✅ تطبيقك الأساسي -->
-  <script type="module" src="/index.tsx"></script>
+    </script>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>

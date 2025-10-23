@@ -6,7 +6,8 @@ import LoginPage from './components/LoginPage';
 import MainApp from './MainApp';
 import LoadingSpinner from './components/LoadingSpinner';
 import { ToastContainer, ToastMessage } from './components/Toast';
-import { ExclamationTriangleIcon } from './components/Icons';
+import { ExclamationTriangleIcon, Cog6ToothIcon } from './components/Icons';
+import FirebaseSetupModal from './components/FirebaseSetupModal';
 
 // Make firebase available from the global scope
 declare const firebase: any;
@@ -18,27 +19,37 @@ declare global {
   }
 }
 
-const FirebaseConfigWarning: React.FC<{ t: (key: any) => string }> = ({ t }) => {
+const FirebaseConfigWarning: React.FC<{ t: (key: any) => string; onConfigure: () => void }> = ({ t, onConfigure }) => {
   return (
     <div className="bg-yellow-100 dark:bg-yellow-900/30 border-b-2 border-yellow-300 dark:border-yellow-700 text-yellow-800 dark:text-yellow-200 p-4 w-full z-[10001] sticky top-0">
-      <div className="container mx-auto flex items-center">
-        <ExclamationTriangleIcon className="w-6 h-6 me-3 flex-shrink-0" />
-        <div className="text-sm">
-          <span className="font-bold">{t('firebaseConfigWarningTitle')}:</span> {t('firebaseConfigWarningBody')}
+      <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center">
+          <ExclamationTriangleIcon className="w-6 h-6 me-3 flex-shrink-0" />
+          <div className="text-sm">
+            <span className="font-bold">{t('firebaseConfigWarningTitle')}:</span> {t('firebaseConfigWarningBody')}
+          </div>
         </div>
+        <button 
+            onClick={onConfigure}
+            className="inline-flex items-center flex-shrink-0 px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+        >
+            <Cog6ToothIcon className="w-4 h-4 me-2" />
+            {t('configureNow')}
+        </button>
       </div>
     </div>
   );
 };
 
 const App: React.FC = () => {
-  const [language, setLanguage] = useLocalStorage<Language>('saati-language', 'ar');
+  const [language, setLanguage] = useLocalStorage<Language>('saati-language', 'de');
   const [theme, setTheme] = useLocalStorage<Theme>('saati-theme', 'light');
   const [user, setUser] = useState<any | null>(null);
   const [isGuest, setIsGuest] = useLocalStorage<boolean>('saati-is-guest', false);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [firebaseInitialized, setFirebaseInitialized] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [isFirebaseSetupModalOpen, setIsFirebaseSetupModalOpen] = useState(false);
 
   const t = useCallback(getTranslator(language), [language]);
 
@@ -62,6 +73,13 @@ const App: React.FC = () => {
       root.classList.remove('dark');
     }
   }, [language, theme]);
+  
+  // Auto-open the setup modal if Firebase is not configured.
+  useEffect(() => {
+    if (window.isFirebaseConfigured === false) {
+      setIsFirebaseSetupModalOpen(true);
+    }
+  }, []);
   
   useEffect(() => {
     if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
@@ -100,7 +118,8 @@ const App: React.FC = () => {
 
   return (
     <>
-      {window.isFirebaseConfigured === false && <FirebaseConfigWarning t={t} />}
+      {window.isFirebaseConfigured === false && <FirebaseConfigWarning t={t} onConfigure={() => setIsFirebaseSetupModalOpen(true)} />}
+      <FirebaseSetupModal isOpen={isFirebaseSetupModalOpen} onClose={() => setIsFirebaseSetupModalOpen(false)} t={t} />
       <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
       {!showMainApp ? (
           <div className="smooth-scroll">
@@ -112,6 +131,7 @@ const App: React.FC = () => {
                 t={t}
                 firebaseInitialized={firebaseInitialized}
                 onGuestLogin={() => setIsGuest(true)}
+                onConfigureRequest={() => setIsFirebaseSetupModalOpen(true)}
             />
           </div>
       ) : (

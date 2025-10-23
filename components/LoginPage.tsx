@@ -13,9 +13,10 @@ interface LoginPageProps {
     t: (key: any) => string;
     firebaseInitialized: boolean;
     onGuestLogin: () => void;
+    onConfigureRequest: () => void;
 }
 
-const LoginPage: React.FC<LoginPageProps> = ({ language, setLanguage, theme, setTheme, t, firebaseInitialized, onGuestLogin }) => {
+const LoginPage: React.FC<LoginPageProps> = ({ language, setLanguage, theme, setTheme, t, firebaseInitialized, onGuestLogin, onConfigureRequest }) => {
     const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
     const languageMenuRef = useRef<HTMLDivElement>(null);
     const [email, setEmail] = useState('');
@@ -44,21 +45,25 @@ const LoginPage: React.FC<LoginPageProps> = ({ language, setLanguage, theme, set
 
     const handleGoogleSignIn = () => {
         if (!firebaseInitialized) {
-            alert(t('firebaseConfigError'));
+            setError('CONFIG_ERROR');
             return;
         }
         setError(null);
         const provider = new firebase.auth.GoogleAuthProvider();
         firebase.auth().signInWithPopup(provider).catch((error: any) => {
             console.error("Error during Google sign-in:", error);
-            setError(t('genericAuthError'));
+            if (error.code === 'auth/operation-not-allowed') {
+                setError(t('authOperationNotAllowed'));
+            } else {
+                setError(t('genericAuthError'));
+            }
         });
     };
 
     const handleEmailSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!firebaseInitialized) {
-            setError(t('firebaseConfigError'));
+            setError('CONFIG_ERROR');
             return;
         }
         setError(null);
@@ -66,7 +71,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ language, setLanguage, theme, set
             await firebase.auth().signInWithEmailAndPassword(email, password);
         } catch (err: any) {
             console.error("Error signing in with email:", err);
-            if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+            if (err.code === 'auth/operation-not-allowed') {
+                setError(t('authOperationNotAllowed'));
+            } else if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
                  setError(t('loginErrorInvalidCredentials'));
             } else {
                  setError(t('genericAuthError'));
@@ -76,7 +83,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ language, setLanguage, theme, set
     
     const handleEmailSignUp = async () => {
         if (!firebaseInitialized) {
-            setError(t('firebaseConfigError'));
+            setError('CONFIG_ERROR');
             return;
         }
         setError(null);
@@ -84,7 +91,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ language, setLanguage, theme, set
             await firebase.auth().createUserWithEmailAndPassword(email, password);
         } catch (err: any) {
             console.error("Error signing up with email:", err);
-            if (err.code === 'auth/weak-password') {
+            if (err.code === 'auth/operation-not-allowed') {
+                setError(t('authOperationNotAllowed'));
+            } else if (err.code === 'auth/weak-password') {
                 setError(t('signUpErrorWeakPassword'));
             } else if (err.code === 'auth/email-already-in-use') {
                 setError(t('signUpErrorEmailInUse'));
@@ -151,7 +160,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ language, setLanguage, theme, set
                     <button 
                         onClick={handleGoogleSignIn}
                         className="w-full inline-flex items-center justify-center text-gray-800 bg-white/80 hover:bg-white border border-gray-300/80 focus:ring-4 focus:outline-none focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800/80 dark:text-white dark:border-gray-600/80 dark:hover:bg-gray-800 dark:focus:ring-gray-700 disabled:opacity-50 transition-colors"
-                        disabled={!firebaseInitialized}
                     >
                         <GoogleIcon className="w-5 h-5 me-3"/>
                         Sign in with Google
@@ -180,11 +188,24 @@ const LoginPage: React.FC<LoginPageProps> = ({ language, setLanguage, theme, set
                             required
                             className="w-full bg-white/50 border border-gray-300/50 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 dark:bg-gray-900/50 dark:border-gray-600/50 dark:placeholder-gray-400 dark:text-white"
                         />
-                         {error && <p className="text-xs text-red-500 dark:text-red-400">{error}</p>}
+                         {error && (
+                            <div className="text-xs text-red-500 dark:text-red-400 text-center bg-red-500/10 dark:bg-red-500/10 border border-red-500/20 rounded-md p-2">
+                                <p>{error === 'CONFIG_ERROR' ? t('firebaseConfigError') : error}</p>
+                                {error === 'CONFIG_ERROR' && (
+                                    <button 
+                                        type="button"
+                                        onClick={onConfigureRequest}
+                                        className="mt-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                                    >
+                                        {t('configureNow')}
+                                    </button>
+                                )}
+                            </div>
+                        )}
                         <div className="flex flex-col sm:flex-row gap-2">
                             <button
                                 type="submit"
-                                disabled={!firebaseInitialized || !email || !password}
+                                disabled={!email || !password}
                                 className="w-full justify-center text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg shadow-indigo-500/30 dark:shadow-indigo-800/30 focus:ring-4 focus:outline-none focus:ring-indigo-300 dark:focus:ring-indigo-800 font-medium rounded-lg text-sm px-5 py-2.5 disabled:opacity-50 transition-all"
                             >
                                 {t('loginWithEmail')}
@@ -192,7 +213,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ language, setLanguage, theme, set
                              <button
                                 type="button"
                                 onClick={handleEmailSignUp}
-                                disabled={!firebaseInitialized || !email || !password}
+                                disabled={!email || !password}
                                 className="w-full justify-center text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:ring-4 focus:outline-none focus:ring-indigo-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-700 dark:text-indigo-300 dark:hover:bg-gray-600 dark:focus:ring-gray-700 disabled:opacity-50 transition-colors"
                             >
                                 {t('signUp')}
