@@ -10,7 +10,6 @@ import { useUserData } from './hooks/useUserData';
 import LoadingSpinner from './components/LoadingSpinner';
 import Reminders from './components/Reminders';
 import Sidebar from './components/Sidebar';
-// FIX: Import TourStep type from TourGuide component.
 import TourGuide, { TourStep } from './components/TourGuide';
 import useLocalStorage from './hooks/useLocalStorage';
 import WorkHoursChart from './components/WorkHoursChart';
@@ -44,7 +43,6 @@ const MainApp: React.FC<MainAppProps> = ({ user, onLogout, language, setLanguage
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorage('saati-sidebar-collapsed', false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // FIX: Explicitly type tourSteps with TourStep[] to resolve type inference error on the 'position' property.
   const tourSteps: TourStep[] = [
     { target: '#dashboard-widget', content: t('tourStep1') },
     { target: '#logs-widget', content: t('tourStep3') },

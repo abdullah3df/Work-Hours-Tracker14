@@ -124,7 +124,6 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, logs, profil
       windowHeight: input.scrollHeight
     }).then((canvas) => {
       const fileNameBase = `Saati_Report_${reportData.userName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}`;
-      // FIX: Define imgData from canvas to be used for both image and PDF generation.
       const imgData = canvas.toDataURL('image/png');
       
       if (type === 'image') {

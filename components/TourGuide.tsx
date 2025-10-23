@@ -1,8 +1,5 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 
-// FIX: Export TourStep interface to be used in other components.
 export interface TourStep {
   target: string;
   content: string;
