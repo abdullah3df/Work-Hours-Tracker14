@@ -21,40 +21,39 @@
     body::before{content:'';position:fixed;inset:0;z-index:-1;background:linear-gradient(45deg,#818cf8,#a78bfa,#f472b6,#60a5fa,#34d399);background-size:400% 400%;animation:gradient-animation 25s ease infinite;opacity:.15}
     html.dark body::before{opacity:.2}
     html[lang="ar"] body,html[dir="rtl"] body{font-family:Cairo,sans-serif}
-    *{transition:background-color .3s ease,color .3s ease,border-color .3s ease,box-shadow .3s ease}
+    *{transition:background-color .3s,color .3s,border-color .3s,box-shadow .3s}
     @keyframes gradient-animation{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
     .smooth-scroll{overflow-y:auto;height:100vh;scroll-behavior:smooth}
     .smooth-scroll::-webkit-scrollbar{width:8px}
-    .smooth-scroll::-webkit-scrollbar-track{background:transparent}
     .smooth-scroll::-webkit-scrollbar-thumb{background-color:rgba(0,0,0,.2);border-radius:10px;border:2px solid transparent;background-clip:content-box}
     html.dark .smooth-scroll::-webkit-scrollbar-thumb{background-color:rgba(255,255,255,.2)}
   </style>
 
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter','sans-serif'], cairo: ['Cairo','sans-serif'] }
-        }
-      }
-    }
-  </script>
-
-  <!-- ⚠️ تم حذف importmap غير الموثوق (aistudiocdn) لحل تنبيه CodeQL ومشاكل النشر -->
+  <!-- (اختياري لكن مفيد للأمان) Content-Security-Policy مبسطة -->
+  <!-- لاحقًا سننقل السكربتات لملفات منفصلة لتجنب 'unsafe-inline' -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 script-src 'self' https://www.gstatic.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com;
+                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                 font-src 'self' https://fonts.gstatic.com;
+                 connect-src 'self' https://www.googleapis.com https://firestore.googleapis.com https://securetoken.googleapis.com;
+                 img-src 'self' data:;
+                 object-src 'none';
+                 base-uri 'self';
+                 frame-ancestors 'none';">
 </head>
 <body>
   <div id="root"></div>
 
-  <!-- ✅ Firebase SDKs (موثوقة من gstatic) -->
+  <!-- ✅ Firebase SDKs (من gstatic موثوق) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-  <!-- ✅ Firebase init + زر اختبار تسجيل الدخول -->
+  <!-- ✅ Firebase init + شريط اختبار تسجيل الدخول -->
   <script type="module">
-    // استخدم المسار الصحيح حيث وضعت الملف داخل src
-    import { firebaseConfig } from './src/firebaseConfig.js';
+    // استيراد الإعدادات من الجذر (عندك الملف في الجذر)
+    import { firebaseConfig } from './firebaseConfig.js';
 
     try {
       if (firebase.apps.length === 0) {
