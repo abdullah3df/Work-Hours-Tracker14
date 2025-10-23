@@ -135,7 +135,7 @@ const LogManager: React.FC<LogManagerProps> = ({
                   <th scope="col" className="px-4 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell">{t('startTime')}</th>
                   <th scope="col" className="px-4 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell">{t('endTime')}</th>
                   <th scope="col" className="px-4 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">{t('duration')}</th>
-                  <th scope="col" className="px-4 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">{t('overtime')}</th>
+                  <th scope="col" className="px-4 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">{t('overtime')}</th>
                   <th scope="col" className="px-4 py-3 text-start text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">{t('actions')}</th>
                 </tr>
               </thead>
@@ -151,7 +151,7 @@ const LogManager: React.FC<LogManagerProps> = ({
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 font-mono hidden md:table-cell">{log.startTime ? formatTime(new Date(log.startTime), language) : '—'}</td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 font-mono hidden md:table-cell">{log.endTime ? formatTime(new Date(log.endTime), language) : '—'}</td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 font-mono">{log.type === 'work' ? formatDuration(durationMs) : '—'}</td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm font-mono hidden lg:table-cell" style={{color: overtimeMs > 0 ? '#10B981' : 'inherit'}}>{log.type === 'work' ? formatDuration(overtimeMs) : '—'}</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-mono" style={{color: overtimeMs > 0 ? '#10B981' : 'inherit'}}>{log.type === 'work' ? formatDuration(overtimeMs) : '—'}</td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex items-center space-x-2 rtl:space-x-reverse">
                             <button onClick={() => onEdit(log)} className="p-1 rounded-md text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-200/50 dark:hover:bg-gray-600/50" title={t('edit')}>
