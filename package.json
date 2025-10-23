@@ -1,7 +1,7 @@
 {
-  "name": "saati-work-hours-tracker14",
+  "name": "copy-of-copy-of-sa'ati---work-hours-tracker14",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,16 +9,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "uuid": "^9.0.1",
-    "firebase": "^10.12.2",
-    "@google/generative-ai": "^0.17.0"
+    "react-dom": "^19.2.0",
+    "react": "^19.2.0",
+    "uuid": "^13.0.0",
+    "@google/genai": "^0.18.0",
+    "firebase": "^12.4.0"
   },
   "devDependencies": {
-    "@types/node": "^20.12.12",
-    "@vitejs/plugin-react": "^4.3.1",
-    "typescript": "^5.4.5",
-    "vite": "^5.4.10"
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
   }
 }

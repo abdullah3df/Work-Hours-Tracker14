@@ -1,117 +1,189 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sa'ati - Work Hours Tracker</title>
-
-  <!-- UI libs -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root{--bg-color-light:#f0f4f8;--bg-color-dark:#0f172a;--glass-bg-light:#ffffff;--glass-bg-dark:#1e293b;--glass-border-light:#e2e8f0;--glass-border-dark:#334155;--shadow-color-light:rgba(99,102,241,.15);--shadow-color-dark:rgba(0,0,0,.3)}
-    body{font-family:Inter,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;color:#1f2937;background-color:var(--bg-color-light);overflow:hidden}
-    html.dark body{color:#e5e7eb;background-color:var(--bg-color-dark)}
-    body::before{content:'';position:fixed;inset:0;z-index:-1;background:linear-gradient(45deg,#818cf8,#a78bfa,#f472b6,#60a5fa,#34d399);background-size:400% 400%;animation:gradient-animation 25s ease infinite;opacity:.15}
-    html.dark body::before{opacity:.2}
-    html[lang="ar"] body,html[dir="rtl"] body{font-family:Cairo,sans-serif}
-    *{transition:background-color .3s,color .3s,border-color .3s,box-shadow .3s}
-    @keyframes gradient-animation{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-    .smooth-scroll{overflow-y:auto;height:100vh;scroll-behavior:smooth}
-    .smooth-scroll::-webkit-scrollbar{width:8px}
-    .smooth-scroll::-webkit-scrollbar-thumb{background-color:rgba(0,0,0,.2);border-radius:10px;border:2px solid transparent;background-clip:content-box}
-    html.dark .smooth-scroll::-webkit-scrollbar-thumb{background-color:rgba(255,255,255,.2)}
-  </style>
-
-  <!-- (اختياري لكن مفيد للأمان) Content-Security-Policy مبسطة -->
-  <!-- لاحقًا سننقل السكربتات لملفات منفصلة لتجنب 'unsafe-inline' -->
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
-                 script-src 'self' https://www.gstatic.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com;
-                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-                 font-src 'self' https://fonts.gstatic.com;
-                 connect-src 'self' https://www.googleapis.com https://firestore.googleapis.com https://securetoken.googleapis.com;
-                 img-src 'self' data:;
-                 object-src 'none';
-                 base-uri 'self';
-                 frame-ancestors 'none';">
-</head>
-<body>
-  <div id="root"></div>
-
-  <!-- ✅ Firebase SDKs (من gstatic موثوق) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-  <!-- ✅ Firebase init + شريط اختبار تسجيل الدخول -->
-  <script type="module">
-    // استيراد الإعدادات من الجذر (عندك الملف في الجذر)
-    import { firebaseConfig } from './firebaseConfig.js';
-
-    try {
-      if (firebase.apps.length === 0) {
-        firebase.initializeApp(firebaseConfig);
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sa'ati - Work Hours Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color-light: #f0f4f8;
+        --bg-color-dark: #0f172a;
+        --glass-bg-light: #ffffff;
+        --glass-bg-dark: #1e293b; /* slate-800 */
+        --glass-border-light: #e2e8f0; /* slate-200 */
+        --glass-border-dark: #334155; /* slate-700 */
+        --shadow-color-light: rgba(99, 102, 241, 0.15);
+        --shadow-color-dark: rgba(0, 0, 0, 0.3);
       }
-    } catch (e) {
-      console.error("Firebase initialization error", e);
-    }
 
-    const auth = firebase.auth();
-    const provider = new firebase.auth.GoogleAuthProvider();
-
-    // عناصر اختبار بسيطة لا تؤثر على React
-    const bar = document.createElement('div');
-    bar.style = 'position:fixed;bottom:16px;right:16px;display:flex;gap:8px;z-index:9999';
-    const loginBtn = document.createElement('button');
-    loginBtn.textContent = 'Google Login';
-    loginBtn.className = 'px-3 py-2 rounded-md bg-blue-600 text-white shadow hover:bg-blue-700';
-
-    const logoutBtn = document.createElement('button');
-    logoutBtn.textContent = 'Logout';
-    logoutBtn.className = 'px-3 py-2 rounded-md bg-slate-600 text-white shadow hover:bg-slate-700 hidden';
-
-    bar.appendChild(loginBtn);
-    bar.appendChild(logoutBtn);
-    document.body.appendChild(bar);
-
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        loginBtn.classList.add('hidden');
-        logoutBtn.classList.remove('hidden');
-        console.log('Signed in:', user.email);
-      } else {
-        loginBtn.classList.remove('hidden');
-        logoutBtn.classList.add('hidden');
-        console.log('No user signed in');
+      body { 
+        font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        color: #1f2937;
+        background-color: var(--bg-color-light);
+        overflow: hidden; /* Hide scrollbars from the gradient body */
       }
-    });
+      html.dark body {
+        color: #e5e7eb;
+        background-color: var(--bg-color-dark);
+      }
+      /* Animated Gradient Background */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: -1;
+        background: linear-gradient(45deg, #818cf8, #a78bfa, #f472b6, #60a5fa, #34d399);
+        background-size: 400% 400%;
+        animation: gradient-animation 25s ease infinite;
+        opacity: 0.15;
+      }
+      html.dark body::before {
+        opacity: 0.2;
+      }
 
-    loginBtn.onclick = async () => {
-      try {
-        await auth.signInWithPopup(provider);
-        alert('تم تسجيل الدخول ✅');
-      } catch (err) {
-        console.warn('Popup failed; trying redirect...', err);
-        try {
-          await auth.signInWithRedirect(provider);
-        } catch (e2) {
-          console.error('Redirect failed', e2);
-          alert('فشل تسجيل الدخول — تأكد من Authorized domains وإعداد OAuth');
+      html[lang="ar"] body, html[dir="rtl"] body { 
+        font-family: 'Cairo', sans-serif; 
+      }
+      .report-table {
+        font-family: 'Inter', sans-serif;
+      }
+      * {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      @keyframes gradient-animation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 10px 0px rgba(22, 163, 74, 0.4), 0 0 20px 0px rgba(22, 163, 74, 0.2); }
+        50% { box-shadow: 0 0 20px 10px rgba(22, 163, 74, 0), 0 0 40px 10px rgba(22, 163, 74, 0); }
+      }
+      .pulse-glow-start {
+        animation: pulse-glow 2.5s infinite;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      .smooth-scroll {
+        overflow-y: auto; /* Enable scrolling only on this container */
+        height: 100vh;
+        scroll-behavior: smooth;
+      }
+      /* Scrollbar styling */
+      .smooth-scroll::-webkit-scrollbar {
+        width: 8px;
+      }
+      .smooth-scroll::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .smooth-scroll::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+      }
+       html.dark .smooth-scroll::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      .tour-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 9998;
+        transition: opacity 0.3s ease-in-out;
+      }
+      .tour-highlight {
+        position: fixed;
+        border-radius: 0.5rem;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        transition: all 0.4s ease-in-out;
+      }
+      .tour-tooltip {
+        position: fixed;
+        background-color: var(--glass-bg-light);
+        color: #333;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        max-width: 300px;
+        z-index: 10000;
+        transition: all 0.4s ease-in-out;
+        border: 1px solid var(--glass-border-light);
+      }
+      html.dark .tour-tooltip {
+        background-color: var(--glass-bg-dark);
+        color: #f3f4f6; /* gray-100 */
+        border-color: var(--glass-border-dark);
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              cairo: ['Cairo', 'sans-serif'],
+            }
+          }
         }
       }
-    };
+    </script>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "uuid": "https://aistudiocdn.com/uuid@^13.0.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^0.18.0",
+    "firebase/": "https://aistudiocdn.com/firebase@^12.4.0/"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script type="module">
+      import { firebaseConfig } from './firebaseConfig.js';
+      
+      // Check if the config has been filled out and expose it globally for the React app
+      window.isFirebaseConfigured = firebaseConfig.projectId && !firebaseConfig.projectId.startsWith('YOUR_');
 
-    logoutBtn.onclick = () => auth.signOut();
-  </script>
-
-  <!-- تطبيقك (React/Vite) -->
-  <script type="module" src="/index.tsx"></script>
+      // Initialize Firebase
+      try {
+        // Check if the API key is present, config is valid, and Firebase is not already initialized.
+        // The API key is injected from environment variables.
+        if (window.isFirebaseConfigured && firebaseConfig.apiKey && firebase.apps.length === 0) {
+          firebase.initializeApp(firebaseConfig);
+        } else if (!firebaseConfig.apiKey) {
+          console.warn("Firebase API Key is missing. Please ensure it is set in your environment variables. The app will continue, but authentication will fail.");
+        } else if (!window.isFirebaseConfigured) {
+          console.warn("Firebase is not configured. Please update firebaseConfig.js. The app will run in a limited guest mode.");
+        }
+      } catch (e) {
+        console.error("Firebase initialization error. Please check your Firebase configuration and ensure the API key is valid.", e);
+      }
+    </script>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>
