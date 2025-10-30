@@ -60,11 +60,6 @@ const LogManager: React.FC<LogManagerProps> = ({
     }
   };
 
-  const handleResetFilters = () => {
-    setSearchQuery('');
-    setFilterType('work');
-  };
-
   const filterButtons: { value: LogType; label: string }[] = [
     { value: 'work', label: t('work') },
     { value: 'sickLeave', label: t('sickLeave') },
@@ -115,12 +110,6 @@ const LogManager: React.FC<LogManagerProps> = ({
                     {btn.label}
                 </button>
             ))}
-            <button
-              onClick={handleResetFilters}
-              className="text-sm text-gray-600 dark:text-gray-400 hover:underline px-2"
-            >
-              {t('resetFilters')}
-            </button>
           </div>
         </div>
 
