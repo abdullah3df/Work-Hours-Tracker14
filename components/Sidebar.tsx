@@ -5,8 +5,6 @@ import { Language } from '../types';
 interface SidebarProps {
   t: (key: any) => string;
   onHelpClick: () => void;
-  onInstructionsClick: () => void;
-  onAboutClick: () => void;
   isCollapsed: boolean;
   language: Language;
   onLinkClick: (href: string) => void;
@@ -17,8 +15,6 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ 
   t, 
   onHelpClick, 
-  onInstructionsClick,
-  onAboutClick,
   isCollapsed, 
   language, 
   onLinkClick,
@@ -65,18 +61,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
       
       <div className="flex flex-col">
-          <div>
-              <button onClick={() => { onInstructionsClick(); setIsMobileMenuOpen(false); }} className="w-full flex items-center p-2 text-gray-800 rounded-lg dark:text-white hover:bg-black/10 dark:hover:bg-white/10 group overflow-hidden">
-                  <InformationCircleIcon className="w-6 h-6 flex-shrink-0 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                  <span className={`ms-3 whitespace-nowrap transition-opacity duration-200 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>{t('siteInstructions')}</span>
-              </button>
-          </div>
-          <div>
-              <button onClick={() => { onAboutClick(); setIsMobileMenuOpen(false); }} className="w-full flex items-center p-2 text-gray-800 rounded-lg dark:text-white hover:bg-black/10 dark:hover:bg-white/10 group overflow-hidden">
-                  <BuildingOfficeIcon className="w-6 h-6 flex-shrink-0 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                  <span className={`ms-3 whitespace-nowrap transition-opacity duration-200 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>{t('aboutUs')}</span>
-              </button>
-          </div>
           <div>
               <button onClick={() => { onHelpClick(); setIsMobileMenuOpen(false); }} id="tour-trigger" className="w-full flex items-center p-2 text-gray-800 rounded-lg dark:text-white hover:bg-black/10 dark:hover:bg-white/10 group overflow-hidden">
                   <QuestionMarkCircleIcon className="w-6 h-6 flex-shrink-0 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />

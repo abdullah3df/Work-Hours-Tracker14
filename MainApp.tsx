@@ -34,8 +34,6 @@ const MainApp: React.FC<MainAppProps> = ({ user, onLogout, language, setLanguage
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isLogFormModalOpen, setIsLogFormModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [isInstructionsModalOpen, setIsInstructionsModalOpen] = useState(false);
-  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [logToEdit, setLogToEdit] = useState<LogEntry | null>(null);
 
   const [tourCompleted, setTourCompleted] = useLocalStorage('saati-tour-completed-v1', false);
@@ -81,8 +79,6 @@ const MainApp: React.FC<MainAppProps> = ({ user, onLogout, language, setLanguage
       <Sidebar 
         t={t} 
         onHelpClick={() => handleSetRunTour(true)} 
-        onInstructionsClick={() => setIsInstructionsModalOpen(true)}
-        onAboutClick={() => setIsAboutModalOpen(true)}
         isCollapsed={isSidebarCollapsed}
         language={language}
         onLinkClick={handleLinkClick}
@@ -160,18 +156,6 @@ const MainApp: React.FC<MainAppProps> = ({ user, onLogout, language, setLanguage
         onSave={saveProfile}
         t={t}
         showToast={showToast}
-      />
-
-      <InstructionsModal
-        isOpen={isInstructionsModalOpen}
-        onClose={() => setIsInstructionsModalOpen(false)}
-        t={t}
-      />
-
-      <AboutModal
-        isOpen={isAboutModalOpen}
-        onClose={() => setIsAboutModalOpen(false)}
-        t={t}
       />
 
       <LogFormModal

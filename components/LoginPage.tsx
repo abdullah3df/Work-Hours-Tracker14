@@ -52,10 +52,19 @@ const LoginPage: React.FC<LoginPageProps> = ({ language, setLanguage, theme, set
         const provider = new firebase.auth.GoogleAuthProvider();
         firebase.auth().signInWithPopup(provider).catch((error: any) => {
             console.error("Error during Google sign-in:", error);
-            if (error.code === 'auth/operation-not-allowed') {
-                setError(t('authOperationNotAllowed'));
-            } else {
-                setError(t('genericAuthError'));
+            switch (error.code) {
+                case 'auth/operation-not-allowed':
+                    setError(t('authOperationNotAllowed'));
+                    break;
+                case 'auth/popup-blocked-by-browser':
+                    setError(t('authPopupBlocked'));
+                    break;
+                case 'auth/popup-closed-by-user':
+                case 'auth/cancelled-popup-request':
+                     setError(t('authPopupClosed'));
+                     break;
+                default:
+                    setError(t('genericAuthError'));
             }
         });
     };
@@ -162,7 +171,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ language, setLanguage, theme, set
                         className="w-full inline-flex items-center justify-center text-gray-800 bg-white/80 hover:bg-white border border-gray-300/80 focus:ring-4 focus:outline-none focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800/80 dark:text-white dark:border-gray-600/80 dark:hover:bg-gray-800 dark:focus:ring-gray-700 disabled:opacity-50 transition-colors"
                     >
                         <GoogleIcon className="w-5 h-5 me-3"/>
-                        Sign in with Google
+                        {t('signInWithGoogle')}
                     </button>
 
                     <div className="relative flex py-2 items-center">
@@ -188,18 +197,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ language, setLanguage, theme, set
                             required
                             className="w-full bg-white/50 border border-gray-300/50 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 dark:bg-gray-900/50 dark:border-gray-600/50 dark:placeholder-gray-400 dark:text-white"
                         />
-                         {error && (
+                         {error && error !== 'CONFIG_ERROR' && (
                             <div className="text-xs text-red-500 dark:text-red-400 text-center bg-red-500/10 dark:bg-red-500/10 border border-red-500/20 rounded-md p-2">
-                                <p>{error === 'CONFIG_ERROR' ? t('firebaseConfigError') : error}</p>
-                                {error === 'CONFIG_ERROR' && (
-                                    <button 
-                                        type="button"
-                                        onClick={onConfigureRequest}
-                                        className="mt-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
-                                    >
-                                        {t('configureNow')}
-                                    </button>
-                                )}
+                                <p>{error}</p>
                             </div>
                         )}
                         <div className="flex flex-col sm:flex-row gap-2">

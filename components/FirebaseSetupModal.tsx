@@ -43,10 +43,16 @@ export const firebaseConfig = {
         <div className="p-6 overflow-y-auto text-sm text-gray-700 dark:text-gray-300">
             <ol className="space-y-4 list-decimal list-inside">
                 <li>{t('firebaseStep1')}</li>
-                <li>{t('firebaseStep2')}</li>
+                
+                <li>
+                    <span className="font-bold">{t('firebaseStep2Title')}</span>
+                    <div className="ms-5 mt-2 p-3 bg-yellow-100 dark:bg-yellow-900/30 border-s-4 border-yellow-400 dark:border-yellow-600 rounded-e-lg">
+                        <p className="text-yellow-800 dark:text-yellow-200" dangerouslySetInnerHTML={{ __html: t('firebaseStep2').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                    </div>
+                </li>
+
                 <li>{t('firebaseStep3')}</li>
                 <li>{t('firebaseStep4')}</li>
-                <li>{t('firebaseStep5')}</li>
             </ol>
             
             <h3 className="font-semibold text-gray-800 dark:text-white mt-6 mb-2">{t('firebaseExample')}</h3>
